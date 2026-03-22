@@ -1,2 +1,5 @@
-flask
-gunicorn
+fastapi
+uvicorn[standard]
+python-multipart
+pdf2image
+pillow
