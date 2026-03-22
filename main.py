@@ -13,7 +13,9 @@ app = FastAPI()
 def health_check():
     return {"status": "online", "engine": "LibreOffice/Poppler"}
 
-@app.post("/convert")
+# Change the decorator to allow both patterns
+@app.post("/convert", gateway_timeout=60)
+@app.post("/convert/")
 async def convert_pptx(file: UploadFile = File(...)):
     # 1. Validation
     allowed_extensions = {".pptx", ".ppt", ".docx", ".doc", ".odt"}
