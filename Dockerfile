@@ -1,17 +1,22 @@
-# Use a slim Python image
+# Use Python 3.11 slim as the foundation
 FROM python:3.11-slim
 
-# Install LibreOffice and clean up to keep the image small
-RUN apt-get update && apt-get install -y \
+# Install system binaries for conversion
+RUN apt-get update && apt-get install -y --no-install-recommends \
     libreoffice \
-    --no-install-recommends && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
+    poppler-utils \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
+# Set working directory
 WORKDIR /app
+
+# Copy and install Python requirements
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy the rest of the application
 COPY . .
 
-RUN pip install -r requirements.txt
-
-# Start the server using Gunicorn
-CMD ["gunicorn", "app:app", "--bind", "0.0.0.0:8080"]
+# Render provides the $PORT environment variable automatically
+CMD uvicorn main:app --host 0.0.0.0 --port $PORT
